@@ -5,8 +5,6 @@ const { initializePayment, verifyPayment } = require("./lib/mtn_momo_api")(
 	request
 );
 
-// console.log(process.env.ACCESS_TOKEN);
-
 var data = JSON.stringify({
 	amount: "5.0",
 	currency: "EUR",
