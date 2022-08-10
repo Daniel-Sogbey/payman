@@ -1,9 +1,29 @@
 require("dotenv").config();
+const express = require("express");
 const request = require("request");
 const { v4: uuidv4 } = require("uuid");
-const { initializePayment, verifyPayment } = require("./lib/mtn_momo_api")(
+const { requestPayment, transactionStatus } = require("./lib/mtn_momo_api")(
 	request
 );
+const auth = require("./src/middlewares/auth.js");
+
+//open api routes
+const initiatePayment = require("./apis/initiate_payment.js");
+const verifyPayment = require("./apis/verify_payment.js");
+
+//close api routes
+const userRoutes = require("./src/routes/userRoutes.js");
+
+const app = express();
+
+app.use(express.json());
+
+//open api routes
+app.use("/api", auth, initiatePayment);
+app.use("/api", verifyPayment);
+
+//close api roues
+app.use("/api/auth/users", userRoutes);
 
 var data = JSON.stringify({
 	amount: "5.0",
@@ -19,20 +39,26 @@ var data = JSON.stringify({
 
 let referenceId = uuidv4();
 
-console.log(`Ref ${referenceId}`);
+// requestPayment(data, referenceId, (error, response, body) => {
+// if (error) {
+// console.log(`ERROR ${error}`);
+// } else {
+// console.log(`BODY ${body} : RESPONSE ${response.statusCode}`);
+// }
+// });
 
-initializePayment(data, referenceId, (error, response, body) => {
-	if (error) {
-		console.log(`ERROR ${error}`);
-	} else {
-		console.log(`BODY ${body} : RESPONSE ${response.statusCode}`);
-	}
+// transactionStatus(referenceId, (error, response, body) => {
+// if (error) {
+// console.log(`ERROR ${error}`);
+// } else {
+// console.log(`BODY ${body} : RESPONSE ${response.statusCode}`);
+// }
+// });
+
+app.get("/", (req, res) => {
+	res.status(200).send("Platform Status is 'Ok' ");
 });
 
-verifyPayment(referenceId, (error, response, body) => {
-	if (error) {
-		console.log(`ERROR ${error}`);
-	} else {
-		console.log(`BODY ${body} : RESPONSE ${response.statusCode}`);
-	}
-});
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => console.log(`Server running on port ${port}`));
