@@ -14,7 +14,7 @@ const acceptPayment = async (req, res) => {
 	let referenceId = uuidv4()
 
 	const data = JSON.stringify({
-		amount: "5.0",
+		amount: amount,
 		currency: "EUR",
 		externalId: "24536475869708",
 		payer: {
@@ -35,14 +35,34 @@ const acceptPayment = async (req, res) => {
 		} else {
 			console.log(`BODY : ${body} : RESPONSE REQUEST : ${response.statusCode}`)
 			if (response.statusCode === 202) {
+				console.log(`SUCCESS 202 1 ${response.body}`)
 				transactionStatus(referenceId, (error, response, body) => {
 					if (error) {
 						console.log(`ERROR ${error}`)
 					} else {
 						console.log(`BODY ${body} : RESPONSE VERIFY ${response.statusCode}`)
-
 						if (response.statusCode === 200) {
-							console.log(`SUCCESS ${response.body}`)
+							console.log(`SUCCESS 200 2 ${JSON.parse(response.body).amount}`)
+							let receivedResponse = JSON.parse(response.body)
+
+							let newPayment = new Payment({
+								referenceId: referenceId,
+								financialTransactionId: receivedResponse.financialTransactionId,
+								externalId: receivedResponse.externalId,
+								amount: receivedResponse.amount,
+								currency: receivedResponse.currency,
+								phoneNumber: phoneNumber,
+								paymentMethod: paymentMethod,
+								status: receivedResponse.status
+							})
+
+							try {
+								newPayment.save().then(data => {
+									res.status(200).json({ transactionInfo: data })
+								})
+							} catch (error) {
+								res.status(500).json({ error })
+							}
 						}
 					}
 				})

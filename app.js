@@ -1,4 +1,5 @@
 require("dotenv").config()
+require("./src/db/mongoose.js")
 const express = require("express")
 const request = require("request")
 const auth = require("./src/middlewares/auth.js")

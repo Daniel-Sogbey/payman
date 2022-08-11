@@ -1,6 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
 
 const paymentSchema = mongoose.Schema({
+	referenceId: {
+		type: String,
+		required: true
+	},
 	financialTransactionId: {
 		type: String,
 		required: true
@@ -29,7 +33,7 @@ const paymentSchema = mongoose.Schema({
 		type: String,
 		required: true
 	}
-});
+})
 
 //response from MTN when verify transaction is successful;
 
@@ -47,6 +51,6 @@ const paymentSchema = mongoose.Schema({
 // "status": "SUCCESSFUL"
 // }
 
-const Payment = mongoose.model("Payment", paymentSchema);
+const Payment = mongoose.model("Payment", paymentSchema)
 
-module.exports = Payment;
+module.exports = Payment
