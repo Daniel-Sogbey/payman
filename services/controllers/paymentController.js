@@ -58,6 +58,7 @@ const acceptPayment = async (req, res) => {
 
 							try {
 								newPayment.save().then(data => {
+									//TODO :: redirect user to callback-url with the referenceId , that is in {data.referenceId}
 									res.status(200).json({ transactionInfo: data })
 								})
 							} catch (error) {

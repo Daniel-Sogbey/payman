@@ -21,8 +21,8 @@ const app = express()
 app.use(express.json())
 app.use("/api/services", paymentRoutes)
 //open api routes
-app.use("/api", auth, initiatePayment)
 app.use("/api", verifyPayment)
+app.use("/api", auth, initiatePayment)
 
 //close api roues
 app.use("/api/auth/users", userRoutes)
