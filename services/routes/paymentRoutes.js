@@ -1,8 +1,8 @@
-const express = require("express");
-const acceptPayment = require("../controllers/paymentController.js");
+const express = require("express")
+const acceptPayment = require("../controllers/paymentController.js")
 
-const router = express.Router();
+const router = express.Router()
 
-router.post("/accept-payment", acceptPayment);
+router.post("/accept-payment", acceptPayment)
 
-module.exports = router;
+module.exports = router

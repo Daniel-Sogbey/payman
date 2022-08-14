@@ -15,11 +15,11 @@ const acceptPayment = async (req, res) => {
 
 	const data = JSON.stringify({
 		amount: amount,
-		currency: "EUR",
+		currency: currency,
 		externalId: "24536475869708",
 		payer: {
 			partyIdType: "MSISDN",
-			partyId: "2414901291"
+			partyId: phoneNumber
 		},
 		payerMessage: "Pay for product",
 		payeeNote: "Thanks"
@@ -31,14 +31,18 @@ const acceptPayment = async (req, res) => {
 
 	requestPayment(data, referenceId, (error, response, body) => {
 		if (error) {
-			console.log(`ERROR ${error}`)
+			console.log(`ERROR 1 ${error}`)
 		} else {
 			console.log(`BODY : ${body} : RESPONSE REQUEST : ${response.statusCode}`)
+			if (response.statusCode === 401) {
+				res.status(500).json({ error: "Internal server error" })
+				return
+			}
 			if (response.statusCode === 202) {
 				console.log(`SUCCESS 202 1 ${response.body}`)
-				transactionStatus(referenceId, (error, response, body) => {
+				transactionStatus(referenceId, async (error, response, body) => {
 					if (error) {
-						console.log(`ERROR ${error}`)
+						console.log(`ERROR 2 ${error}`)
 					} else {
 						console.log(`BODY ${body} : RESPONSE VERIFY ${response.statusCode}`)
 						if (response.statusCode === 200) {
@@ -57,10 +61,15 @@ const acceptPayment = async (req, res) => {
 							})
 
 							try {
-								newPayment.save().then(data => {
-									//TODO :: redirect user to callback-url with the referenceId , that is in {data.referenceId}
-									res.status(200).json({ transactionInfo: data })
-								})
+								const transaction = await newPayment.save()
+								// newPayment.save().then(transaction => {
+								// req.user.transactions = req.user.transactions.concat({
+								// transaction
+								// })
+								// console.log("DATA AFTER SAVING PAYMENT TO DB : ", transaction)
+								//TODO :: redirect user to callback-url with the referenceId , that is in {data.referenceId}
+								res.status(200).json({ transactionInfo: transaction })
+								// })
 							} catch (error) {
 								res.status(500).json({ error })
 							}

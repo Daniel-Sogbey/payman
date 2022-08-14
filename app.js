@@ -3,10 +3,10 @@ require("./src/db/mongoose.js")
 const express = require("express")
 const request = require("request")
 const auth = require("./src/middlewares/auth.js")
-const { v4: uuidv4 } = require("uuid")
-const { requestPayment, transactionStatus } = require("./lib/mtn_momo_api.js")(
-	request
-)
+// const { v4: uuidv4 } = require("uuid")
+// const { requestPayment, transactionStatus } = require("./lib/mtn_momo_api.js")(
+// request
+// )
 
 //open api routes
 const initiatePayment = require("./apis/initiate_payment.js")
@@ -19,28 +19,30 @@ const paymentRoutes = require("./services/routes/paymentRoutes.js")
 const app = express()
 
 app.use(express.json())
-app.use("/api/services", paymentRoutes)
-//open api routes
-app.use("/api", verifyPayment)
-app.use("/api", auth, initiatePayment)
 
 //close api roues
 app.use("/api/auth/users", userRoutes)
 
-var data = JSON.stringify({
-	amount: "10",
-	currency: "EUR",
-	externalId: "321432131234",
-	payer: {
-		partyIdType: "MSISDN",
-		partyId: "247502253"
-	},
-	payerMessage: "PAY FOR THE PRODUCT",
-	payeeNote: "Thanks"
-})
+//Customer api routes
+app.use("/api/services", paymentRoutes)
 
-let referenceId = uuidv4()
+//open api routes
+app.use("/api/payment", initiatePayment)
+app.use("/api/payment", verifyPayment)
 
+// var data = JSON.stringify({
+// amount: "10",
+// currency: "EUR",
+// externalId: "321432131234",
+// payer: {
+// partyIdType: "MSISDN",
+// partyId: "247502253"
+// },
+// payerMessage: "PAY FOR THE PRODUCT",
+// payeeNote: "Thanks"
+// })
+
+// let referenceId = uuidv4()
 // requestPayment(data, referenceId, (error, response, body) => {
 // if (error) {
 // console.log(`ERROR ${error}`)

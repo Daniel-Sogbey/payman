@@ -3,5 +3,6 @@
         "momo",
         "MSISDN",
         "uuidv"
-    ]
+    ],
+    "liveServer.settings.port": 5501
 }
