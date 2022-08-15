@@ -3,7 +3,7 @@ Author : Daniel Sogbey
 Start Date : 6th August, 2022
 **/
 
-require("dotenv").config()
+require("dotenv/config")
 require("./src/db/mongoose.js")
 const express = require("express")
 // const request = require("request")

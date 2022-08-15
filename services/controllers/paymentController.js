@@ -95,9 +95,11 @@ const acceptPayment = async (req, res) => {
 												phoneNumber: phoneNumber,
 												paymentMethod: paymentMethod,
 												status: receivedResponse.status
-											}).save()
-
-											// res.status(200).json({ message: "saved" })
+											})
+												.save()
+												.then(transaction => {
+													res.status(200).json({ transaction })
+												})
 										}
 									}
 								}
