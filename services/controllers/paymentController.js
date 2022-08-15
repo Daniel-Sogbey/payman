@@ -1,7 +1,8 @@
 const request = require("request")
-const Payment = require("../models/paymentModel.js")
 const { v4: uuidv4 } = require("uuid")
+const Payment = require("../models/paymentModel.js")
 const {
+	generateAccessToken,
 	requestPayment,
 	transactionStatus
 } = require("../../lib/mtn_momo_api.js")(request)
@@ -29,54 +30,82 @@ const acceptPayment = async (req, res) => {
 	console.log(referenceId, "Reference Id")
 	console.log(`SUBS KEY ${process.env.PRIMARY_KEY}`)
 
-	requestPayment(data, referenceId, (error, response, body) => {
+	generateAccessToken((error, response, body) => {
 		if (error) {
-			console.log(`ERROR 1 ${error}`)
+			console.log("ERROR", error)
 		} else {
-			console.log(`BODY : ${body} : RESPONSE REQUEST : ${response.statusCode}`)
-			if (response.statusCode === 401) {
-				res.status(500).json({ error: "Internal server error" })
-				return
-			}
-			if (response.statusCode === 202) {
-				console.log(`SUCCESS 202 1 ${response.body}`)
-				transactionStatus(referenceId, async (error, response, body) => {
+			console.log("RESPONSE", JSON.parse(response.body).access_token)
+			const accessToken = JSON.parse(response.body).access_token
+			requestPayment(
+				data,
+				accessToken,
+				referenceId,
+				(error, response, body) => {
 					if (error) {
-						console.log(`ERROR 2 ${error}`)
+						console.log(`ERROR 1 ${error}`)
 					} else {
-						console.log(`BODY ${body} : RESPONSE VERIFY ${response.statusCode}`)
-						if (response.statusCode === 200) {
-							console.log(`SUCCESS 200 2 ${JSON.parse(response.body).amount}`)
-							let receivedResponse = JSON.parse(response.body)
+						console.log(
+							`BODY : ${body} : RESPONSE REQUEST : ${response.statusCode}`
+						)
+						if (response.statusCode === 401) {
+							res.status(500).json({ error: "Internal server error" })
+							return
+						}
+						if (response.statusCode === 202) {
+							console.log(`SUCCESS 202 1 ${response.body}`)
+							transactionStatus(
+								referenceId,
+								accessToken,
+								(error, response, body) => {
+									if (error) {
+										console.log(`ERROR 2 ${error}`)
+									} else {
+										console.log(
+											`BODY ${body} : RESPONSE VERIFY ${response.statusCode}`
+										)
+										if (response.statusCode === 200) {
+											console.log(
+												`SUCCESS 200 2 ${JSON.parse(response.body).amount}`
+											)
+											let receivedResponse = JSON.parse(response.body)
 
-							let newPayment = new Payment({
-								referenceId: referenceId,
-								financialTransactionId: receivedResponse.financialTransactionId,
-								externalId: receivedResponse.externalId,
-								amount: receivedResponse.amount,
-								currency: receivedResponse.currency,
-								phoneNumber: phoneNumber,
-								paymentMethod: paymentMethod,
-								status: receivedResponse.status
-							})
+											console.log(
+												`RECEIVED RESPONSE ${receivedResponse.financialTransactionId}`
+											)
 
-							try {
-								const transaction = await newPayment.save()
-								// newPayment.save().then(transaction => {
-								// req.user.transactions = req.user.transactions.concat({
-								// transaction
-								// })
-								// console.log("DATA AFTER SAVING PAYMENT TO DB : ", transaction)
-								//TODO :: redirect user to callback-url with the referenceId , that is in {data.referenceId}
-								res.status(200).json({ transactionInfo: transaction })
-								// })
-							} catch (error) {
-								res.status(500).json({ error })
-							}
+											console.log("DATA ", {
+												referenceId: referenceId,
+												financialTransactionId:
+													receivedResponse.financialTransactionId,
+												externalId: receivedResponse.externalId,
+												currency: receivedResponse.currency,
+												amount: receivedResponse.amount,
+												phoneNumber: phoneNumber,
+												paymentMethod: paymentMethod,
+												status: receivedResponse.status
+											})
+
+											new Payment({
+												referenceId: referenceId,
+												financialTransactionId:
+													receivedResponse.financialTransactionId,
+												externalId: receivedResponse.externalId,
+												currency: receivedResponse.currency,
+												amount: receivedResponse.amount,
+												phoneNumber: phoneNumber,
+												paymentMethod: paymentMethod,
+												status: receivedResponse.status
+											}).save()
+
+											// res.status(200).json({ message: "saved" })
+										}
+									}
+								}
+							)
 						}
 					}
-				})
-			}
+				}
+			)
 		}
 	})
 }

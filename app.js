@@ -1,7 +1,12 @@
+/** Property of PayMan 
+Author : Daniel Sogbey
+Start Date : 6th August, 2022
+**/
+
 require("dotenv").config()
 require("./src/db/mongoose.js")
 const express = require("express")
-const request = require("request")
+// const request = require("request")
 const auth = require("./src/middlewares/auth.js")
 // const { v4: uuidv4 } = require("uuid")
 // const { requestPayment, transactionStatus } = require("./lib/mtn_momo_api.js")(

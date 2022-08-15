@@ -3,7 +3,6 @@ const express = require("express")
 const router = express.Router()
 
 //TODO -> middleware to verify user
-
 router.get("/initiate", (req, res) => {
 	const { amount } = req.body
 
@@ -12,8 +11,8 @@ router.get("/initiate", (req, res) => {
 		return
 	}
 
-	//TODO -> redirect user to checkout page
-	res.status(200).redirect("/api/services/accept-payment")
+	//TODO -> send user a link to redirect to checkout page
+	res.status(200).json({ data: "www.google.com" })
 })
 
 module.exports = router
