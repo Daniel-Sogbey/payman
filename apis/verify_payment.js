@@ -3,8 +3,8 @@ const Payment = require("../services/models/paymentModel.js")
 
 const router = express.Router()
 
-router.get("/verify/:reference", async (req, res) => {
-	const referenceId = req.params.reference
+router.get("/verify", async (req, res) => {
+	const referenceId = req.query.reference
 	console.log("HERE", referenceId)
 	//TODOs :
 	// 1. Retrieve referenceId from GET request URL
