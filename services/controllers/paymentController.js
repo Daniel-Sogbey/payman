@@ -33,6 +33,7 @@ const acceptPayment = async (req, res) => {
 	generateAccessToken((error, response, body) => {
 		if (error) {
 			console.log("ERROR", error)
+			res.status(500).json({ error: "Internal server error.,try again later" })
 		} else {
 			console.log("RESPONSE", JSON.parse(response.body).access_token)
 			const accessToken = JSON.parse(response.body).access_token

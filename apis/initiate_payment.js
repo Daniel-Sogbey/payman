@@ -6,6 +6,8 @@ const router = express.Router()
 router.get("/initiate", (req, res) => {
 	const { amount } = req.body
 
+	console.log(`REQ : ${req.headers.authorization}`)
+
 	if (!amount) {
 		res.status(400).send("Provide an amount to continue with the request")
 		return
